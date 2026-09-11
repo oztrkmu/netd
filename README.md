@@ -1,41 +1,22 @@
-We are building a serious C networking project called netd.
+# netd
 
-Do not start implementing features yet.
+Small TCP networking daemon written in C.
 
-First inspect the entire repository and read:
+Linux first.
+KISS. No unnecessary dependencies or abstractions.
 
-SPEC.md
-ROADMAP.md
-README.md
+Built to learn and explore network and systems programming close to the OS.
 
-The project must follow these rules:
+## build
 
-- C11/C17
-- Unix/Linux style
-- camelCase function and variable naming
-- KISS
-- small focused functions
-- explicit error handling
-- no hidden global state unless justified
-- no blocking I/O in the event loop
-- bounded memory usage
-- no unbounded queues
-- Linux first
-- portable architecture for epoll/kqueue/IOCP later
-- IPv4 and IPv6 architecture
-- production-grade error handling
-- clean ownership/lifetime rules
-- compile with strict warnings
+sh
+make
 
-Do not blindly add abstractions.
-Every abstraction must solve a real networking or portability problem.
+## run
 
-Our purpose is to deeply learn systems and network programming,
-so explain important design decisions while implementing them.
+sh
+./build/netd
 
-First task:
-
-Review the planned architecture and propose the directory/module
-dependency graph.
-
-Do not write implementation code until the architecture is coherent.
+## status
+Work in progress.
+See `SPEC.md` and `ROADMAP.md` for details.
