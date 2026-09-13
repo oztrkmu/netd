@@ -30,7 +30,7 @@ int main(int argc, char **argv)
                   "  -v          short lifecycle logs on stderr\n"
                   "  -q          quiet (default; errors still reported)\n"
                   "  -h          show help\n"
-                  "console: help, list, info, send, broadcast, kick, stats, history, quit\n", stdout);
+                  "type help in the server console for commands\n", stdout);
             return 0;
         default: usage(stderr); return 2;
         }

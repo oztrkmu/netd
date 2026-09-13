@@ -73,6 +73,20 @@ Shutdown disables acceptance and reads immediately, keeps writable clients until
 queues empty or the deadline expires, then closes everything. No transport is
 persisted. Fatal event-loop/startup errors clean up and return nonzero.
 
+## Reporting
+
+Close reasons are explicit enum values. Client I/O records framing, queue and socket
+failures; the server supplies idle, operator, shutdown and event-loop reasons. A
+single `serverDrop` path accounts each connection once and appends one bounded
+history record before freeing the transport. History stores copied metadata, never
+pointers into reusable slots. It holds the last `HISTORY_CAPACITY` entries and is
+independent of verbosity. Fatal cleanup and drain deadlines use the same path.
+
+The command parser and console help use one immutable command table. List and
+history output have count terminators so empty results are unambiguous. Enqueue
+acknowledgments describe local acceptance, not peer delivery. Verbose lifecycle
+messages do not add a network greeting or enable remote operator commands.
+
 ## Connection versus logical session (future contract)
 
 `client.id`, fd, peer address, counters and framing buffers describe one transport

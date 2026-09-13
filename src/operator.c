@@ -58,18 +58,14 @@ int operatorCommand(void *context, const char *line)
         }
     }
     switch (command.kind) {
-    case CMD_HELP:
-        consolePrint(&server->console, server->epollFd,
-                     "help                   show commands\n"
-                     "list                   show connected clients\n"
-                     "info <id>              show connection details\n"
-                     "send <id> <message>    queue a message\n"
-                     "broadcast <message>    queue for all active clients\n"
-                     "kick <id>              close a connection\n"
-                     "stats                  show server counters\n"
-                     "history                show recent disconnects\n"
-                     "quit                   drain and stop\n");
+    case CMD_HELP: {
+        size_t count;
+        const struct command_spec *commands = commandSpecs(&count);
+        for (size_t index = 0; index < count; ++index)
+            consolePrint(&server->console, server->epollFd, "%-22s %s\n",
+                         commands[index].usage, commands[index].description);
         break;
+    }
     case CMD_LIST:
         for (size_t index = 0; index < MAX_CLIENTS; ++index) {
             const struct client *entry = &server->clients[index];

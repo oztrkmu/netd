@@ -26,6 +26,21 @@ int main(void)
     assert(strcmp(command.message, "hello world") == 0);
     char invalid[] = "kick 4 extra";
     assert(commandParse(invalid).kind == CMD_INVALID);
+    size_t commandCount;
+    const struct command_spec *commands = commandSpecs(&commandCount);
+    for (size_t index = 0; index < commandCount; ++index) {
+        char commandLine[128];
+        const char *arguments = "";
+        if (commands[index].kind == CMD_INFO || commands[index].kind == CMD_KICK)
+            arguments = " 1";
+        else if (commands[index].kind == CMD_SEND)
+            arguments = " 1 hello";
+        else if (commands[index].kind == CMD_BROADCAST)
+            arguments = " hello";
+        (void)snprintf(commandLine, sizeof(commandLine), "%s%s", commands[index].name, arguments);
+        assert(commandParse(commandLine).kind == commands[index].kind);
+        assert(*commands[index].usage != '\0' && *commands[index].description != '\0');
+    }
     struct frame frame = {0};
     int count = 0;
     assert(frameFeed(&frame, "PI", 2, countFrame, &count) == 0);

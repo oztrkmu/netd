@@ -7,6 +7,21 @@
 #include "client.h"
 #include "socket.h"
 
+static void checkReadFailure(const char *data, size_t length, int halfClose,
+                             enum close_reason reason)
+{
+    int pair[2];
+    assert(socketpair(AF_UNIX, SOCK_STREAM, 0, pair) == 0);
+    assert(socketNonblock(pair[0]) == 0);
+    struct client client = { .fd = pair[0], .state = CLIENT_ACTIVE };
+    assert(send(pair[1], data, length, 0) == (ssize_t)length);
+    if (halfClose)
+        assert(shutdown(pair[1], SHUT_WR) == 0);
+    assert(clientRead(&client, 1) == -1 && client.reason == reason);
+    clientClose(&client);
+    close(pair[1]);
+}
+
 int main(void)
 {
     int pair[2];
@@ -48,6 +63,15 @@ int main(void)
     assert(client.fd == -1 && client.state == CLIENT_CLOSED);
     assert(recv(pair[1], actual, sizeof(actual), 0) == 0);
     close(pair[1]);
-    puts("client: partial write, EAGAIN, fragmentation, half-close ok");
+    checkReadFailure("bad\0\n", 5, 0, CLOSE_PROTOCOL);
+    checkReadFailure("PI", 2, 1, CLOSE_INCOMPLETE);
+    char oversized[MAX_MESSAGE_SIZE + 1];
+    memset(oversized, 'x', sizeof(oversized));
+    checkReadFailure(oversized, sizeof(oversized), 0, CLOSE_PROTOCOL);
+    struct client fullClient = {0};
+    assert(bufferAppend(&fullClient.output, expected, sizeof(expected)) == 0);
+    assert(clientQueue(&fullClient, "full") == -1 && fullClient.reason == CLOSE_BACKPRESSURE);
+    assert(strcmp(clientReason(fullClient.reason), "backpressure") == 0);
+    puts("client: partial write, EAGAIN, fragmentation, half-close, close reasons ok");
     return 0;
 }

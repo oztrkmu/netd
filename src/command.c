@@ -2,6 +2,24 @@
 #include <string.h>
 #include "command.h"
 
+static const struct command_spec specs[] = {
+    { CMD_HELP, "help", "help", "show commands" },
+    { CMD_LIST, "list", "list", "show connected clients" },
+    { CMD_INFO, "info", "info <id>", "show connection details" },
+    { CMD_SEND, "send", "send <id> <message>", "queue a message" },
+    { CMD_BROADCAST, "broadcast", "broadcast <message>", "queue for all active clients" },
+    { CMD_KICK, "kick", "kick <id>", "close a connection" },
+    { CMD_STATS, "stats", "stats", "show server counters" },
+    { CMD_HISTORY, "history", "history", "show recent disconnects" },
+    { CMD_QUIT, "quit", "quit", "drain and stop" }
+};
+
+const struct command_spec *commandSpecs(size_t *count)
+{
+    *count = sizeof(specs) / sizeof(specs[0]);
+    return specs;
+}
+
 int parseId(const char *text, uint64_t *id)
 {
     uint64_t value = 0;
@@ -45,11 +63,11 @@ struct command commandParse(char *line)
     struct command command = { .kind = CMD_INVALID };
     char *cursor = line;
     char *name = takeWord(&cursor);
-    const char *names[] = { "", "help", "list", "info", "send",
-                            "broadcast", "kick", "stats", "quit", "history" };
-    for (size_t index = 1; index < sizeof(names) / sizeof(names[0]); ++index) {
-        if (strcmp(name, names[index]) == 0) {
-            command.kind = (enum command_kind)index;
+    size_t count;
+    const struct command_spec *commands = commandSpecs(&count);
+    for (size_t index = 0; index < count; ++index) {
+        if (strcmp(name, commands[index].name) == 0) {
+            command.kind = commands[index].kind;
             break;
         }
     }
