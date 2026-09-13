@@ -1,50 +1,33 @@
-v0.1
-poll based core
-binary framing
-rx buffer
-tx buffer
+# Roadmap
 
-v0.2
-partial IO correctness
-protocol validation
-timeouts
-heartbeat
+## Implemented: Linux daemon core
 
-v0.3
-epoll backend
-timer system
-client hash table
+- C17, strict warnings, separate release/debug/sanitizer builds.
+- IPv4/IPv6 listener, level-triggered epoll, nonblocking bounded I/O.
+- Connection metadata and process-local IDs, local operator commands.
+- Framing limits, output backpressure, capacity rejection, idle expiry.
+- Signal shutdown, half-close draining, fd-exhaustion retry delay.
+- Parser/buffer/socket tests and live multi-client integration tests.
 
-v0.4
-reconnect
-session resume
-sequence numbers
+## Next: application semantics
 
-v0.5
-persistent state
-journal
-crash recovery
+- Select a useful application protocol; version it before external compatibility
+  commitments. Keep framing separate from request handling.
+- Define authentication and deployment requirements; evaluate TLS when needed.
+- Add fault-injection tests for allocation/fd exhaustion and timing policies.
+- Measure latency, memory, CPU and fairness with persistent clients and churn.
 
-v0.6
-IPv6
-getaddrinfo
-transport cleanup
+## Later: logical sessions
 
-v0.7
-TLS transport
+- Authenticated session handshake with independent session ownership and expiry.
+- A client implementation with reconnect backoff and jitter.
+- Explicit retry, sequence and acknowledgment rules before session resumption.
+- Optional versioned logical-state snapshots and restart/corruption tests.
 
-v0.8
-rate limiting
-load shedding
-backpressure
+## Only when justified
 
-v0.9
-multi-node architecture
-service discovery
-connection draining
+- Finer-grained rate limits, absolute frame deadlines and heartbeat policy.
+- Indexed lookups, timer scheduling or multiple event loops based on measurements.
+- Other Unix event backends if a real portability requirement appears.
 
-v1.0
-production Linux release
-tests
-benchmarks
-documentation
+Persistence, TLS, session recovery and performance targets remain future work.
